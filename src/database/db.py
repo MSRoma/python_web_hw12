@@ -2,7 +2,7 @@ import contextlib
 
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
-from src.conf.config import config
+from src.config.config import config
 
 class DatabaseSessionManager:
     def __init__(self, url: str):

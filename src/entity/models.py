@@ -1,19 +1,21 @@
 import enum
 from datetime import date
 
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Integer, ForeignKey, DateTime, func, Enum
-from sqlalchemy.orm import DeclarativeBase
-
-
-from sqlalchemy import Column, Integer, String, Boolean, func, Table
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Boolean, func, Table,Enum
+from sqlalchemy.orm import relationship ,Mapped, mapped_column
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
-class Base(DeclarativeBase):
-    pass
+Base = declarative_base()
+
+# note_m2m_tag = Table(
+#     "note_m2m_tag",
+#     Base.metadata,
+#     Column("id", Integer, primary_key=True),
+#     Column("note_id", Integer, ForeignKey("notes.id", ondelete="CASCADE")),
+#     Column("tag_id", Integer, ForeignKey("tags.id", ondelete="CASCADE")),
+# )
 
 class Contact(Base):
     __tablename__ = "contact"
@@ -25,17 +27,16 @@ class Contact(Base):
     databirthday = Column('databirthday', DateTime, nullable=False)
     note = Column(String(150), nullable=True)
     createdat = Column('createdat', DateTime, default=func.now())
-    updated_at = Column('updated_at', DateTime, default=func.now(), onupdate=func.now(),
+    
+    updated_at: Mapped[date] = mapped_column('updated_at', DateTime, default=func.now(), onupdate=func.now(),
                                              nullable=True)
-
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
-    user = Column("User", backref="todos", lazy="joined")
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=True)
+    user: Mapped["User"] = relationship("User", backref="todos", lazy="joined")
 
 class Role(enum.Enum):
-    admin = Column("admin")
-    moderator = Column ("moderator")
-    user = Column ("user")
-
+    admin: str = "admin"
+    moderator: str = "moderator"
+    user: str = "user"
 
 class User(Base):
     __tablename__ = 'users'
@@ -48,6 +49,7 @@ class User(Base):
     created_at: Mapped[date] = mapped_column('created_at', DateTime, default=func.now())
     updated_at: Mapped[date] = mapped_column('updated_at', DateTime, default=func.now(), onupdate=func.now())
     role: Mapped[Enum] = mapped_column('role', Enum(Role), default=Role.user, nullable=True)
+    
 
 # class Note(Base):
 #     __tablename__ = "notes"
